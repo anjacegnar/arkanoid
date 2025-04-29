@@ -1,0 +1,1 @@
+// datoteka za pomožne funkcije
