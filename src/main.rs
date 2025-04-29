@@ -4,8 +4,19 @@ mod paddle;
 mod brick;
 mod utils;
 
-fn main() {
-    println!("Arkanoid game initialized.");
-    let mut game = game::Game::new();
-    game.run();
+use macroquad::prelude::*;
+use game::Game;
+
+#[macroquad::main("Arkanoid")]
+async fn main() {
+    let mut game = Game::new();
+
+    loop {
+        let dt = get_frame_time();
+        game.update(dt);
+
+        clear_background(BLACK);
+        game.draw();
+        next_frame().await;
+    }
 }
