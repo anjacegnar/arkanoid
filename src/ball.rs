@@ -22,18 +22,32 @@ impl Ball {
         self.pos += self.vel * dt;
     }
 
+    // Odbije žogico od sten
     pub fn collide_walls(&mut self, screen_w: f32, screen_h: f32) {
-        // Odbije žogico od sten
+        // leva in desna
+        if self.pos.x - self.radius <= 0.0 || self.pos.x + self.radius >= screen_w {
+            self.vel.x = -self.vel.x;
+        }
+        // zgornja
+        if self.pos.y - self.radius <= 0.0 {
+            self.vel.y = -self.vel.y;
+        }
     }
 
+    // Preveri trk s ploščico
     pub fn collide_paddle(&self, paddle: &Paddle) -> bool {
-        false
-        // Preveri trk s ploščico
+        let paddle_y = screen_height() - paddle.height;
+        self.pos.y + self.radius >= paddle_y
+            && self.pos.x >= paddle.x
+            && self.pos.x <= paddle.x + paddle.width
     }
 
+    // Preveri trk z enim blokom
     pub fn collide_brick(&self, brick: &Brick) -> bool {
-        false
-        // Preveri trk z enim blokom
+        self.pos.y - self.radius <= brick.y + brick.height
+            && self.pos.y + self.radius >= brick.y
+            && self.pos.x + self.radius >= brick.x
+            && self.pos.x - self.radius <= brick.x + brick.width
     }
 
     // Obrne vertikalno komponento hitrosti
