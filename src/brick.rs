@@ -19,6 +19,13 @@ impl Brick {
         }
     }
 
+    pub fn center(&self) -> Vec2 {
+        Vec2::new(
+            self.x + self.width / 2.0,
+            self.y + self.height / 2.0,
+        )
+    }
+
     // Postavi mrežo 5×10 blokov
     pub fn layout() -> Vec<Brick> {
         let mut bricks = Vec::new();

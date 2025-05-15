@@ -1,10 +1,12 @@
-use crate::{ball::Ball, paddle::Paddle, brick::Brick};
+use crate::{ball::Ball, paddle::Paddle, brick::Brick, utils::PowerUp, utils::PowerUpType};
 use macroquad::prelude::*;
 
 pub struct Game {
     ball: Ball,
     paddle: Paddle,
     bricks: Vec<Brick>,
+    powerups: Vec<PowerUp>,
+    extend_paddle_time_left: f32,
 }
 
 impl Game {
@@ -13,6 +15,8 @@ impl Game {
             ball: Ball::new(vec2(400.0, 300.0), vec2(200.0, -200.0)),
             paddle: Paddle::new(350.0, 20.0, 100.0),
             bricks: Brick::layout(),
+            powerups: Vec::new(),
+            extend_paddle_time_left: 0.0,
         }
     }
 
@@ -23,6 +27,10 @@ impl Game {
         for brick in &mut self.bricks {
             if !brick.destroyed && self.ball.collide_brick(brick) {
                 brick.destroyed = true;
+
+                if rand::gen_range(0, 100) < 7 {
+                    self.powerups.push(PowerUp::new(brick.center(), PowerUpType::ExtendPaddle));
+                }
                 
                 let cx = self.ball.pos.x;
                 let cy = self.ball.pos.y;
@@ -57,6 +65,30 @@ impl Game {
         }
     
         self.paddle.update(dt);
+
+        for pu in &mut self.powerups {
+            pu.update(dt);
+            if pu.active 
+                    && pu.pos.y >= screen_height() - self.paddle.height
+                    && pu.pos.x >= self.paddle.x
+                    && pu.pos.x <= self.paddle.x + self.paddle.width
+            {
+                if self.extend_paddle_time_left <= 0.0 {
+                    self.paddle.width *= 1.5;
+                }
+                self.extend_paddle_time_left = 10.0;
+                pu.active = false;
+            }
+        }
+        self.powerups.retain(|pu| pu.active && pu.pos.y <= screen_height());
+        
+        if self.extend_paddle_time_left > 0.0 {
+            self.extend_paddle_time_left -= dt;
+            if self.extend_paddle_time_left <= 0.0 {
+                self.paddle.width /= 1.5;
+                self.extend_paddle_time_left = 0.0;
+            }
+        }
     }    
 
     pub fn draw(&self) {
@@ -71,5 +103,6 @@ impl Game {
         // nariše ploščico
         draw_rectangle(self.paddle.x, screen_height() - self.paddle.height,
                        self.paddle.width, self.paddle.height, BLUE);
+        for pu in &self.powerups { pu.draw(); }
     }
 }
