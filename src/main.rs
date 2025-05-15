@@ -9,6 +9,10 @@ use game::Game;
 
 #[macroquad::main("Arkanoid")]
 async fn main() {
+    let extend_texture = load_texture("assets/extend_paddle.png")
+        .await
+        .unwrap();
+
     let mut game = Game::new();
 
     loop {
@@ -16,7 +20,7 @@ async fn main() {
         game.update(dt);
 
         clear_background(BLACK);
-        game.draw();
+        game.draw(&extend_texture);
         next_frame().await;
     }
 }

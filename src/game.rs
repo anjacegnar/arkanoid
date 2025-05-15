@@ -91,7 +91,7 @@ impl Game {
         }
     }    
 
-    pub fn draw(&self) {
+    pub fn draw(&self, extend_texture: &Texture2D) {
         // nariše bloke
         for brick in &self.bricks {
             if !brick.destroyed {
@@ -103,6 +103,19 @@ impl Game {
         // nariše ploščico
         draw_rectangle(self.paddle.x, screen_height() - self.paddle.height,
                        self.paddle.width, self.paddle.height, BLUE);
-        for pu in &self.powerups { pu.draw(); }
+        for pu in &self.powerups {
+            let size = Vec2::new(42.0, 32.0);
+            draw_texture_ex(
+                extend_texture,
+                pu.pos.x - size.x / 2.0,
+                pu.pos.y - size.y / 2.0,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(size),
+                    ..Default::default()
+                },
+            );
+        }
     }
+
 }
