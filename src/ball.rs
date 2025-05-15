@@ -55,6 +55,11 @@ impl Ball {
         self.vel.y = -self.vel.y;
     }
 
+    // Obrne horizontalno komponento hitrosti
+    pub fn bounce_x(&mut self) {
+        self.vel.x = -self.vel.x;
+    }
+
     // Nariše žogico
     pub fn draw(&self) {
         draw_circle(self.pos.x, self.pos.y, self.radius, WHITE);
