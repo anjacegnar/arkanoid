@@ -37,9 +37,11 @@ impl Ball {
     // Preveri trk s ploščico
     pub fn collide_paddle(&self, paddle: &Paddle) -> bool {
         let paddle_y = screen_height() - paddle.height;
-        self.pos.y + self.radius >= paddle_y
-            && self.pos.x >= paddle.x
-            && self.pos.x <= paddle.x + paddle.width
+        let within_x = self.pos.x + self.radius >= paddle.x
+            && self.pos.x - self.radius <= paddle.x + paddle.width;
+        let within_y = self.pos.y + self.radius >= paddle_y
+            && self.pos.y - self.radius <= paddle_y + paddle.height;
+        within_x && within_y
     }
 
     // Preveri trk z enim blokom

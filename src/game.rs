@@ -72,8 +72,10 @@ impl Game {
             self.next_level();
         }
     
-        if self.ball.collide_paddle(&self.paddle) {
+        if self.ball.vel.y > 0.0 && self.ball.collide_paddle(&self.paddle) {
             self.ball.bounce_y();
+            let paddle_y = screen_height() - self.paddle.height;
+            self.ball.pos.y = paddle_y - self.ball.radius;
         }
     
         self.paddle.update(dt);
