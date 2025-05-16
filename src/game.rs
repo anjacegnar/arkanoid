@@ -1,4 +1,4 @@
-use crate::{ball::Ball, paddle::Paddle, brick::Brick, utils::PowerUp, utils::PowerUpType};
+use crate::{ball::Ball, paddle::Paddle, brick::Brick, utils::{PowerUp, PowerUpType}, level::Level};
 use macroquad::prelude::*;
 
 pub struct Game {
@@ -7,16 +7,24 @@ pub struct Game {
     bricks: Vec<Brick>,
     powerups: Vec<PowerUp>,
     extend_paddle_time_left: f32,
+    levels: Vec<Level>,
+    current_level: usize,
 }
 
 impl Game {
     pub fn new() -> Self {
+        let levels = Level::all();
+        let current_level = 0;
+        let bricks = levels[current_level].spawn_bricks();
+
         Self {
             ball: Ball::new(vec2(400.0, 300.0), vec2(200.0, -200.0)),
             paddle: Paddle::new(350.0, 20.0, 100.0),
-            bricks: Brick::layout(),
+            bricks,
             powerups: Vec::new(),
             extend_paddle_time_left: 0.0,
+            levels,
+            current_level,
         }
     }
 
@@ -58,6 +66,10 @@ impl Game {
     
                 break;
             }
+        }
+
+        if self.bricks.iter().all(|b| b.destroyed) {
+            self.next_level();
         }
     
         if self.ball.collide_paddle(&self.paddle) {
@@ -115,6 +127,23 @@ impl Game {
                     ..Default::default()
                 },
             );
+        }
+    }
+
+    fn load_level(&mut self) {
+        let lvl = &self.levels[self.current_level];
+        self.bricks = lvl.brick_positions
+            .iter()
+            .map(|&(x, y)| Brick::new(x, y))
+            .collect();
+    }
+
+    fn next_level(&mut self) {
+        self.current_level += 1;
+        if self.current_level < self.levels.len() {
+            self.load_level();
+        } else {
+            // game-over ali victory
         }
     }
 

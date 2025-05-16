@@ -3,6 +3,7 @@ mod ball;
 mod paddle;
 mod brick;
 mod utils;
+mod level;
 
 use macroquad::prelude::*;
 use game::Game;
