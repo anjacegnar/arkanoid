@@ -1,5 +1,6 @@
 use crate::{ball::Ball, paddle::Paddle, brick::Brick, utils::{PowerUp, PowerUpType}, level::Level};
 use macroquad::prelude::*;
+use macroquad::rand::gen_range;
 
 pub struct Game {
     ball: Ball,
@@ -36,7 +37,7 @@ impl Game {
             if !brick.destroyed && self.ball.collide_brick(brick) {
                 brick.destroyed = true;
 
-                if rand::gen_range(0, 100) < 7 {
+                if gen_range(0, 100) < 7 {
                     self.powerups.push(PowerUp::new(brick.center(), PowerUpType::ExtendPaddle));
                 }
                 
@@ -68,16 +69,15 @@ impl Game {
             }
         }
 
+
+        if self.ball.bounce_off_paddle(&self.paddle, self.paddle.speed) {
+        }
+
         if self.bricks.iter().all(|b| b.destroyed) {
             self.next_level();
         }
     
-        if self.ball.vel.y > 0.0 && self.ball.collide_paddle(&self.paddle) {
-            self.ball.bounce_y();
-            let paddle_y = screen_height() - self.paddle.height;
-            self.ball.pos.y = paddle_y - self.ball.radius;
-        }
-    
+
         self.paddle.update(dt);
 
         for pu in &mut self.powerups {
@@ -106,29 +106,13 @@ impl Game {
     }    
 
     pub fn draw(&self, extend_texture: &Texture2D) {
-        // nariše bloke
         for brick in &self.bricks {
-            if !brick.destroyed {
-                draw_rectangle(brick.x, brick.y, brick.width, brick.height, GRAY);
-            }
+         brick.draw();
         }
-        // nariše žogico
-        draw_circle(self.ball.pos.x, self.ball.pos.y, self.ball.radius, WHITE);
-        // nariše ploščico
-        draw_rectangle(self.paddle.x, screen_height() - self.paddle.height,
-                       self.paddle.width, self.paddle.height, BLUE);
+        self.ball.draw();
+        self.paddle.draw();
         for pu in &self.powerups {
-            let size = Vec2::new(42.0, 32.0);
-            draw_texture_ex(
-                extend_texture,
-                pu.pos.x - size.x / 2.0,
-                pu.pos.y - size.y / 2.0,
-                WHITE,
-                DrawTextureParams {
-                    dest_size: Some(size),
-                    ..Default::default()
-                },
-            );
+            pu.draw(extend_texture);
         }
     }
 

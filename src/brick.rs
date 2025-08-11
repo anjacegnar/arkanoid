@@ -26,19 +26,6 @@ impl Brick {
         )
     }
 
-    // Postavi mrežo 5×10 blokov
-    pub fn layout() -> Vec<Brick> {
-        let mut bricks = Vec::new();
-        for row in 0..5 {
-            for col in 0..10 {
-                let x = col as f32 * (60.0 + 5.0) + 35.0;
-                let y = row as f32 * (20.0 + 5.0) + 40.0;
-                bricks.push(Brick::new(x, y));
-            }
-        }
-        bricks
-    }
-
     // Nariše blok, če še ni uničen
     pub fn draw(&self) {
         if !self.destroyed {

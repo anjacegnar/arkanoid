@@ -5,13 +5,23 @@ pub struct Level {
 }
 
 impl Level {
+    // Postavi mrežo 5x10 blokov
+    pub fn default_positions() -> Vec<(f32, f32)> {
+        let mut slots = Vec::new();
+        for row in 0..5 {
+            for col in 0..10 {
+                let x = col as f32 * (60.0 + 5.0) + 35.0;
+                let y = row as f32 * (20.0 + 5.0) + 40.0;
+                slots.push((x, y));
+            }
+        }
+        slots
+    }
+
     pub fn all() -> Vec<Level> {
         vec![
             Level {
-                brick_positions: Brick::layout()
-                .into_iter()
-                .map(|b| (b.x, b.y))
-                .collect(),
+                brick_positions: Self::default_positions(),
             },
             Level { brick_positions: vec![
                 // 1. vrstica
@@ -43,6 +53,7 @@ impl Level {
         ]
     }
 
+    
     pub fn spawn_bricks(&self) -> Vec<Brick> {
         self.brick_positions
             .iter()

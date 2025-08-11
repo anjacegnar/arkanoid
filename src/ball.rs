@@ -34,14 +34,53 @@ impl Ball {
         }
     }
 
-    // Preveri trk s ploščico
-    pub fn collide_paddle(&self, paddle: &Paddle) -> bool {
+    // Odbije žogico od ploščice
+    pub fn bounce_off_paddle(&mut self, paddle: &Paddle, paddle_vx: f32) -> bool {
         let paddle_y = screen_height() - paddle.height;
-        let within_x = self.pos.x + self.radius >= paddle.x
+
+        let intersects_x = self.pos.x + self.radius >= paddle.x
             && self.pos.x - self.radius <= paddle.x + paddle.width;
-        let within_y = self.pos.y + self.radius >= paddle_y
+        let intersects_y = self.pos.y + self.radius >= paddle_y
             && self.pos.y - self.radius <= paddle_y + paddle.height;
-        within_x && within_y
+
+        // obravnavamo samo, če žoga potuje navzdol
+        if !(intersects_x && intersects_y && self.vel.y > 0.0) {
+            return false;
+        }
+
+        // relativni zadetek po širini ploščice v [-1, 1]
+        let paddle_cx = paddle.x + paddle.width * 0.5;
+        let hit_offset = ((self.pos.x - paddle_cx) / (paddle.width * 0.5)).clamp(-1.0, 1.0);
+
+        // največji odklon od navpičnice
+        let max_angle_from_vertical = 60f32.to_radians();
+        let theta = hit_offset * max_angle_from_vertical;
+
+        let base_speed = self.vel.length().max(120.0);
+
+        // nova smer, odvisna od kota
+        let mut vx =  base_speed * theta.sin();
+        let mut vy = -base_speed * theta.cos();
+
+        // vpliv hitrosti ploščice
+        let paddle_influence = 0.25;
+        vx += paddle_vx * paddle_influence;
+
+        let mut v = vec2(vx, vy);
+        let len = v.length();
+        if len > 0.0 {
+            v *= base_speed / len;
+        }
+
+        let min_up_frac = 0.35;
+        let min_up_v = base_speed * min_up_frac;
+        if v.y > -min_up_v {
+            v.y = -min_up_v;
+        }
+
+        self.vel = v;
+        self.pos.y = paddle_y - self.radius - 0.1;
+        true
     }
 
     // Preveri trk z enim blokom

@@ -19,7 +19,17 @@ impl PowerUp {
         self.pos.y += 100.0 * dt;
     }
 
-    pub fn draw(&self) {
-        draw_circle(self.pos.x, self.pos.y, 8.0, YELLOW);
+    pub fn draw(&self, texture: &Texture2D) {
+        let size = Vec2::new(42.0, 32.0);
+        draw_texture_ex(
+            texture,
+            self.pos.x - size.x / 2.0,
+            self.pos.y - size.y / 2.0,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(size),
+                ..Default::default()
+            },
+        );
     }
 }
