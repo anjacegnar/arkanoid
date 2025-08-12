@@ -11,14 +11,15 @@ use game::Game;
 #[macroquad::main("Arkanoid")]
 async fn main() {
     let extend_texture = load_texture("assets/extend_paddle.png")
-        .await
-        .unwrap();
+    .await
+    .unwrap();
+
+    extend_texture.set_filter(FilterMode::Nearest);
 
     let mut game = Game::new();
 
     loop {
-        let dt = get_frame_time();
-        game.update(dt);
+        game.update();
 
         clear_background(BLACK);
         game.draw(&extend_texture);
