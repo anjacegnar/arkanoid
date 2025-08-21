@@ -60,7 +60,12 @@ impl Game {
             }
         }
         if let Some(p) = spawn_pu_at {
-            self.powerups.push(PowerUp::new(p, PowerUpType::ExtendPaddle));
+            let kind = if gen_range(0, 100) < 20 {
+                PowerUpType::ExtraLife
+            } else {
+                PowerUpType::ExtendPaddle
+            };
+            self.powerups.push(PowerUp::new(p, kind));
         }
 
         self.bricks.retain(|b| !b.destroyed);
@@ -72,10 +77,17 @@ impl Game {
                 && pu.pos.x >= self.paddle.x
                 && pu.pos.x <= self.paddle.x + self.paddle.width
             {
-                if self.extend_paddle_time_left <= 0.0 {
-                    self.paddle.width *= 1.5;
+                match pu.kind {
+                    PowerUpType::ExtendPaddle => {
+                        if self.extend_paddle_time_left <= 0.0 {
+                            self.paddle.width *= 1.5;
+                        }
+                        self.extend_paddle_time_left = 10.0;
+                    }
+                    PowerUpType::ExtraLife => {
+                        self.lives += 1;
+                    }
                 }
-                self.extend_paddle_time_left = 10.0;
                 pu.active = false;
             }
         }

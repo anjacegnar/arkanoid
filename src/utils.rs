@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 
 pub enum PowerUpType {
     ExtendPaddle,
+    ExtraLife,
 }
 
 pub struct PowerUp {
