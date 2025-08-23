@@ -7,7 +7,6 @@ mod level;
 
 use macroquad::prelude::*;
 use game::Game;
-use crate::utils::*;
 
 #[macroquad::main("Arkanoid")]
 async fn main() {
@@ -23,20 +22,19 @@ async fn main() {
 
     life_texture.set_filter(FilterMode::Nearest);
 
+    let balls_texture = load_texture("assets/multiple_balls.png")
+    .await
+    .unwrap();
+
+    balls_texture.set_filter(FilterMode::Nearest);
+
     let mut game = Game::new();
 
     loop {
         game.update();
 
         clear_background(BLACK);
-        game.draw(&extend_texture);
-        for p in &game.powerups {
-            let tex = match p.kind {
-                PowerUpType::ExtendPaddle => &extend_texture,
-                PowerUpType::ExtraLife    => &life_texture,
-            };
-            p.draw(tex);
-        }
+        game.draw(&extend_texture, &life_texture, &balls_texture);
         next_frame().await;
     }
 }

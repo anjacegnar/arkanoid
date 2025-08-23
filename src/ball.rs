@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 use crate::paddle::Paddle;
 use crate::brick::Brick;
 
+#[derive(Clone)]
 pub struct Ball {
     pub pos: Vec2,
     pub vel: Vec2,
@@ -152,13 +153,6 @@ impl Ball {
 
         brick.destroyed = true;
         true
-    }
-
-    // Vrne žogico v začetno stanje
-    pub fn reset(&mut self) {
-        self.pos = vec2(screen_width() / 2.0, screen_height() / 2.0);
-        self.vel = vec2(1.0, -1.0).normalize();
-        self.speed = 300.0;
     }
 
     // Nariše žogico
