@@ -151,7 +151,6 @@ impl Ball {
             self.bounce_y();
         }
 
-        brick.destroyed = true;
         true
     }
 

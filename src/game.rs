@@ -1,4 +1,4 @@
-use crate::{ball::Ball, paddle::Paddle, brick::Brick, utils::*, level::*};
+use crate::{ball::Ball, paddle::Paddle, brick::*, utils::*, level::*};
 use macroquad::prelude::*;
 
 pub struct Game {
@@ -38,7 +38,8 @@ impl Game {
             // naslednji leveli so random
             let positions = random_positions(None, RandomLevelCfg::default());
             self.bricks = Level { brick_positions: positions }.spawn_bricks();
-        }
+            assign_random_brick_kinds(&mut self.bricks);
+        }   
     }
 
     pub fn update(&mut self) {
@@ -55,18 +56,18 @@ impl Game {
         let mut powerup_spawns: Vec<Vec2> = Vec::new();
 
         for (i, brick) in self.bricks.iter_mut().enumerate() {
-            let mut hit = false;
+            let mut got_hit = false;
 
             for ball in &mut self.balls {
                 if ball.hit_brick(brick) {
-                    hit = true;
+                    brick.on_hit();
+                    got_hit = true;
                 }
             }
 
-            if hit {
+            if got_hit && brick.is_destroyed() {
                 bricks_to_remove.push(i);
                 self.score += 100;
-
                 powerup_spawns.push(brick.center());
             }
         }
@@ -134,13 +135,12 @@ impl Game {
             }
         }
 
-        if self.bricks.is_empty() {
+        let breakables_left = self.bricks.iter().any(|b| b.is_breakable());
+        if !breakables_left {
             self.current_level += 1;
-
             for b in &mut self.balls {
                 b.speed = (b.speed * 1.05).min(600.0);
             }
-
             self.load_level();
         }
 

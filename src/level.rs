@@ -1,4 +1,4 @@
-use crate::brick::Brick;
+use crate::brick::*;
 use macroquad::prelude::*;
 use macroquad::rand::{gen_range, srand};
 pub struct Level {
@@ -10,8 +10,8 @@ impl Level {
     pub fn heart_positions() -> Vec<(f32, f32)> {
         vec![
             // 1. vrstica
-            (35.0 + 1.0 * 65.0, 40.0), (35.0 + 2.0 * 65.0, 40.0),
-            (35.0 + 6.0 * 65.0, 40.0), (35.0 + 7.0 * 65.0, 40.0),
+            (35.0 + 1.0 * 65.0, 40.0), (35.0 + 2.0 * 65.0, 40.0), (35.0 + 3.0 * 65.0, 40.0),
+            (35.0 + 6.0 * 65.0, 40.0), (35.0 + 7.0 * 65.0, 40.0), (35.0 + 8.0 * 65.0, 40.0),
             // 2. vrstica
             (35.0 + 0.0 * 65.0, 65.0), (35.0 + 1.0 * 65.0, 65.0), (35.0 + 2.0 * 65.0, 65.0),
             (35.0 + 3.0 * 65.0, 65.0), (35.0 + 4.0 * 65.0, 65.0), (35.0 + 5.0 * 65.0, 65.0),
@@ -33,6 +33,8 @@ impl Level {
             // 6. vrstica
             (35.0 + 3.0 * 65.0, 165.0), (35.0 + 4.0 * 65.0, 165.0),
             (35.0 + 5.0 * 65.0, 165.0), (35.0 + 6.0 * 65.0, 165.0),
+            // 7. vrstica
+            (35.0 + 4.0 * 65.0, 190.0), (35.0 + 5.0 * 65.0, 190.0),
         ]
     }
 
@@ -98,4 +100,27 @@ pub fn random_positions(seed: Option<u64>, cfg: RandomLevelCfg) -> Vec<(f32, f32
     }
 
     out
+}
+
+pub fn assign_random_brick_kinds(bricks: &mut [Brick]) {
+    let p_red:   f32 = 0.60;
+    let p_green:  f32 = 0.25;
+    let p_yellow:    f32 = 0.10;
+    let p_gray: f32 = 0.05;
+
+    let total = p_gray + p_green + p_red + p_yellow;
+
+    for b in bricks.iter_mut() {
+        let r = gen_range(0.0f32, total);
+        let kind = if r < p_gray {
+            BrickKind::Gray
+        } else if r < p_gray + p_green {
+            BrickKind::Green
+        } else if r < p_gray + p_green + p_red {
+            BrickKind::Red
+        } else {
+            BrickKind::Yellow
+        };
+        b.set_kind(kind);
+    }
 }
