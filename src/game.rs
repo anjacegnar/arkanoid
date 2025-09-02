@@ -33,7 +33,7 @@ impl Game {
     fn load_level(&mut self) {
         if self.current_level == 0 {
         // prvi level - srček
-            self.bricks = Level { brick_positions: Level::heart_positions() }.spawn_bricks();
+            self.bricks = Level { brick_positions: Level::heart_positions_centered() }.spawn_bricks();
         } else {
             // naslednji leveli so random
             let positions = random_positions(None, RandomLevelCfg::default());
@@ -160,6 +160,7 @@ impl Game {
                 self.balls.clear();
                 self.balls.push(Ball::new());
                 self.paddle.reset();
+                self.pu_rng = PowerUpRng::new_default();
                 self.load_level();
             }
         }

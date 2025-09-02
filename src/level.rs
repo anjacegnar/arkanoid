@@ -6,6 +6,27 @@ pub struct Level {
 }
 
 impl Level {
+    pub const BW: f32 = 60.0;
+
+    pub fn center_positions_horiz(mut pts: Vec<(f32, f32)>) -> Vec<(f32, f32)> {
+        if pts.is_empty() { 
+            return pts;
+        }
+        let min_x = pts.iter().map(|p| p.0).fold(f32::INFINITY, f32::min);
+        let max_x = pts.iter().map(|p| p.0).fold(f32::NEG_INFINITY, f32::max);
+        let cluster_w = (max_x - min_x) + Self::BW;
+        let desired_left = (screen_width() - cluster_w) * 0.5;
+        let dx = desired_left - min_x;
+        for p in pts.iter_mut() {
+            p.0 += dx;
+        }
+        pts
+    }
+
+    pub fn heart_positions_centered() -> Vec<(f32, f32)> {
+        Self::center_positions_horiz(Self::heart_positions())
+    }
+
     /// Srček
     pub fn heart_positions() -> Vec<(f32, f32)> {
         vec![
@@ -39,10 +60,11 @@ impl Level {
     }
 
     pub fn spawn_bricks(&self) -> Vec<Brick> {
-        self.brick_positions
-            .iter()
-            .map(|&(x, y)| Brick::new(x, y))
-            .collect()
+        let mut v = Vec::with_capacity(self.brick_positions.len());
+        for (x, y) in &self.brick_positions {
+            v.push(Brick::new(*x, *y));
+        }
+        v
     }
 }
 
@@ -99,7 +121,8 @@ pub fn random_positions(seed: Option<u64>, cfg: RandomLevelCfg) -> Vec<(f32, f32
         }
     }
 
-    out
+    Level::center_positions_horiz(out)
+
 }
 
 pub fn assign_random_brick_kinds(bricks: &mut [Brick]) {
@@ -122,5 +145,11 @@ pub fn assign_random_brick_kinds(bricks: &mut [Brick]) {
             BrickKind::Yellow
         };
         b.set_kind(kind);
+    }
+
+    if !bricks.iter().any(|b| b.is_breakable()) {
+        if let Some(b0) = bricks.get_mut(0) {
+            b0.set_kind(BrickKind::Red);
+        }
     }
 }
