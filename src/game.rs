@@ -11,6 +11,8 @@ pub struct Game {
     pub extend_paddle_time_left: f32,
     pub current_level: usize,
     pub pu_rng: PowerUpRng,
+    pub slow_ball_time_left: f32,
+    pub slow_ball_factor: f32,
 }
 
 impl Game {
@@ -25,6 +27,8 @@ impl Game {
             extend_paddle_time_left: 0.0,
             current_level: 0,
             pu_rng: PowerUpRng::new_default(),
+            slow_ball_time_left: 0.0,
+            slow_ball_factor: 1.0,
         };
         game.load_level();
         game
@@ -123,6 +127,9 @@ impl Game {
                 PowerUpType::MultipleBalls => {
                     self.apply_multiple_balls(); 
                 }
+                PowerUpType::SlowerBall => {
+                    self.apply_slow_balls();
+                }
             }
         }
         self.powerups.retain(|pu| pu.active && pu.pos.y <= screen_height());
@@ -132,6 +139,18 @@ impl Game {
             if self.extend_paddle_time_left <= 0.0 {
                 self.paddle.width /= 1.5;
                 self.extend_paddle_time_left = 0.0;
+            }
+        }
+
+        if self.slow_ball_time_left > 0.0 {
+            self.slow_ball_time_left -= dt;
+            if self.slow_ball_time_left <= 0.0 {
+                if self.slow_ball_factor != 1.0 {
+                    for b in &mut self.balls {
+                        b.speed /= self.slow_ball_factor;
+                    }
+                    self.slow_ball_factor = 1.0;
+                }
             }
         }
 
@@ -159,6 +178,11 @@ impl Game {
                 self.current_level = 0;
                 self.balls.clear();
                 self.balls.push(Ball::new());
+                if self.slow_ball_time_left > 0.0 && self.slow_ball_factor != 1.0 {
+                    if let Some(b) = self.balls.last_mut() {
+                        b.speed *= self.slow_ball_factor;
+                    }
+                }
                 self.paddle.reset();
                 self.pu_rng = PowerUpRng::new_default();
                 self.load_level();
@@ -191,7 +215,18 @@ impl Game {
         }
     }
 
-    pub fn draw(&self, extend_texture: &Texture2D, life_texture: &Texture2D, balls_texture: &Texture2D) {
+    fn apply_slow_balls(&mut self) {
+        const FACTOR: f32 = 0.7;
+        if self.slow_ball_time_left <= 0.0 {
+            for b in &mut self.balls {
+                b.speed *= FACTOR;
+            }
+            self.slow_ball_factor = FACTOR;
+        }
+        self.slow_ball_time_left = 8.0;
+    }
+
+    pub fn draw(&self, extend_texture: &Texture2D, life_texture: &Texture2D, balls_texture: &Texture2D, slower_texture: &Texture2D) {
         clear_background(BLACK);
 
         for brick in &self.bricks {
@@ -209,6 +244,7 @@ impl Game {
                 PowerUpType::ExtendPaddle => &extend_texture,
                 PowerUpType::ExtraLife => &life_texture,
                 PowerUpType::MultipleBalls => &balls_texture,
+                PowerUpType::SlowerBall => &slower_texture
             };
             p.draw(tex);
         }

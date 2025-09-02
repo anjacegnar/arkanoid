@@ -16,7 +16,7 @@ impl Ball {
             pos: vec2(screen_width() / 2.0, screen_height() / 2.0),
             vel: vec2(1.0, -1.0).normalize(),
             radius: 8.0,
-            speed: 300.0,
+            speed: 400.0,
         }
     }
 

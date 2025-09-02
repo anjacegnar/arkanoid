@@ -28,13 +28,19 @@ async fn main() {
 
     balls_texture.set_filter(FilterMode::Nearest);
 
+    let slower_texture = load_texture("assets/slower_ball.png")
+    .await
+    .unwrap();
+
+    slower_texture.set_filter(FilterMode::Nearest);
+
     let mut game = Game::new();
 
     loop {
         game.update();
 
         clear_background(BLACK);
-        game.draw(&extend_texture, &life_texture, &balls_texture);
+        game.draw(&extend_texture, &life_texture, &balls_texture, &slower_texture);
         next_frame().await;
     }
 }

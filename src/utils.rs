@@ -5,6 +5,7 @@ pub enum PowerUpType {
     ExtendPaddle,
     ExtraLife,
     MultipleBalls,
+    SlowerBall,
 }
 
 pub struct PowerUp {
@@ -52,6 +53,7 @@ pub struct PowerUpRng {
     pub w_multi: f32,
     pub w_multi_min: f32,
     pub w_multi_decay: f32,
+    pub w_slow: f32,
 }
 
 impl PowerUpRng {
@@ -59,10 +61,11 @@ impl PowerUpRng {
         Self {
             drop_chance: 0.07,
             w_extra: 0.20,
-            w_extend: 0.30,
-            w_multi: 0.50,
+            w_extend: 0.25,
+            w_multi: 0.35,
             w_multi_min: 0.10,
             w_multi_decay: 0.50,
+            w_slow: 0.20,
         }
     }
 
@@ -71,15 +74,17 @@ impl PowerUpRng {
             return None;
         }
 
-        let total = self.w_extra + self.w_extend + self.w_multi;
+        let total = self.w_extra + self.w_extend + self.w_multi + self.w_slow;
         let r = macroquad::rand::gen_range(0.0, total);
 
         let kind = if r < self.w_extra {
             PowerUpType::ExtraLife
         } else if r < self.w_extra + self.w_extend {
             PowerUpType::ExtendPaddle
-        } else {
+        } else if r < self.w_extra + self.w_extend + self.w_multi {
             PowerUpType::MultipleBalls
+        } else {
+            PowerUpType::SlowerBall
         };
 
         if let PowerUpType::MultipleBalls = kind {

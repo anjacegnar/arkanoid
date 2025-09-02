@@ -16,7 +16,7 @@ impl Paddle {
             x: screen_width() / 2.0 - width / 2.0,
             width,
             height,
-            speed: 500.0,
+            speed: 700.0,
             vx: 0.0,
         }
     }
