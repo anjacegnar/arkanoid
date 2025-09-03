@@ -1,4 +1,4 @@
-use arkanoid::ball::Ball;
+use arkanoid::model::ball::Ball;
 use macroquad::prelude::Vec2;
 
 #[test]

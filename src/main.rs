@@ -1,46 +1,10 @@
-mod game;
-mod ball;
-mod paddle;
-mod brick;
-mod utils;
-mod level;
-
-use macroquad::prelude::*;
-use game::Game;
+use arkanoid::{app, world::World, assets::Assets};
 
 #[macroquad::main("Arkanoid")]
 async fn main() {
-    let extend_texture = load_texture("assets/extend_paddle.png")
-    .await
-    .unwrap();
+    let assets = Assets::load().await;
 
-    extend_texture.set_filter(FilterMode::Nearest);
+    let world = World::new();
 
-    let life_texture = load_texture("assets/extra_life.png")
-    .await
-    .unwrap();
-
-    life_texture.set_filter(FilterMode::Nearest);
-
-    let balls_texture = load_texture("assets/multiple_balls.png")
-    .await
-    .unwrap();
-
-    balls_texture.set_filter(FilterMode::Nearest);
-
-    let slower_texture = load_texture("assets/slower_ball.png")
-    .await
-    .unwrap();
-
-    slower_texture.set_filter(FilterMode::Nearest);
-
-    let mut game = Game::new();
-
-    loop {
-        game.update();
-
-        clear_background(BLACK);
-        game.draw(&extend_texture, &life_texture, &balls_texture, &slower_texture);
-        next_frame().await;
-    }
+    app::run(world, &assets).await;
 }

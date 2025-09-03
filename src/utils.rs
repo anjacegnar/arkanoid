@@ -1,4 +1,5 @@
 use macroquad::prelude::*;
+use macroquad::rand::gen_range;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PowerUpType {
@@ -8,32 +9,38 @@ pub enum PowerUpType {
     SlowerBall,
 }
 
+#[derive(Clone, Debug)]
 pub struct PowerUp {
     pub pos: Vec2,
+    pub vel: Vec2,
+    pub radius: f32,
     pub kind: PowerUpType,
     pub active: bool,
 }
 
 impl PowerUp {
     pub fn new(pos: Vec2, kind: PowerUpType) -> Self {
-        Self { pos, kind, active: true }
+        Self {
+            pos,
+            vel: vec2(0.0, 120.0),
+            radius: 8.0,
+            kind,
+            active: true,
+        }
     }
 
     pub fn update(&mut self, dt: f32) {
-        self.pos.y += 100.0 * dt;
+        self.pos += self.vel * dt;
     }
 
     pub fn draw(&self, texture: &Texture2D) {
-        let size = Vec2::new(42.0, 32.0);
+        let size = vec2(self.radius * 2.0, self.radius * 2.0);
         draw_texture_ex(
-            texture,
-            self.pos.x - size.x / 2.0,
-            self.pos.y - size.y / 2.0,
+            &texture,
+            self.pos.x - size.x * 0.5,
+            self.pos.y - size.y * 0.5,
             WHITE,
-            DrawTextureParams {
-                dest_size: Some(size),
-                ..Default::default()
-            },
+            DrawTextureParams { dest_size: Some(size), ..Default::default() },
         );
     }
 }
@@ -70,12 +77,12 @@ impl PowerUpRng {
     }
 
     pub fn maybe_spawn(&mut self, pos: Vec2) -> Option<PowerUp> {
-        if macroquad::rand::gen_range(0.0, 1.0) >= self.drop_chance {
+        if gen_range(0.0, 1.0) >= self.drop_chance {
             return None;
         }
 
         let total = self.w_extra + self.w_extend + self.w_multi + self.w_slow;
-        let r = macroquad::rand::gen_range(0.0, total);
+        let r = gen_range(0.0, total);
 
         let kind = if r < self.w_extra {
             PowerUpType::ExtraLife
@@ -87,7 +94,7 @@ impl PowerUpRng {
             PowerUpType::SlowerBall
         };
 
-        if let PowerUpType::MultipleBalls = kind {
+        if matches!(kind, PowerUpType::MultipleBalls) {
             self.w_multi = (self.w_multi * self.w_multi_decay).max(self.w_multi_min);
         }
 
